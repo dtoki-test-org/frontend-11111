@@ -11,10 +11,21 @@ jobs:
     # Checkout the code
       - uses: actions/checkout@v2
     # Run Tests
-      - name: Run Tests
+      - name: Run Unit Tests
         uses: actions/setup-node@v1
         with: 
-          node-version: 14.x
+          node-version: 12.x
       - run: |
           yarn
           yarn test --watchAll=false
+    # Build Code
+      - name: Build Static Site
+        uses: actions/setup-node@v1
+        with: 
+          node-version: 12.x  
+      - run: |
+          yarn
+          yarn build
+          ls -al
+        env:
+            REACT_APP_CONFIG: prod
