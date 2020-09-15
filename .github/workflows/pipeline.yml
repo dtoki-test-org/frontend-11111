@@ -28,4 +28,13 @@ jobs:
           yarn build
           ls -al
         env:
-            REACT_APP_CONFIG: prod
+          # TODO: how do you have the right config when templated?
+          REACT_APP_CONFIG: prod
+    # Upload build to github artifact
+      - name: Upload build artifact to Github
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-artifact
+          path: build/
+    env:
+      CI: true
