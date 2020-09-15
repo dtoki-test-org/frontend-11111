@@ -5,6 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
+# 
   build:
     runs-on: ubuntu-latest
     steps:
@@ -38,3 +39,49 @@ jobs:
           path: build/
     env:
       CI: true
+# TODO: Deploy for stage
+  deploy:
+    name: Upload to Amazon S3
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact from build step
+        uses: actions/download-artifact@v1
+        with:
+          name: build-artifact
+      
+      # Old sync settings
+      # - uses: jakejarvis/s3-sync-action@master
+      #   with:
+      #     args: --delete
+      #   env:
+      #     AWS_S3_BUCKET: guide.commit.dev
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: 'us-west-2'
+      #     SOURCE_DIR: 'build-artifact'
+
+      # Invalidate Cache
+      # Old cloudfront invalidate settings
+      # - name: Invalidate Cloudfront Cache
+      #   uses: chetan/invalidate-cloudfront-action@master
+      #   env:
+      #     DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+      #     PATHS: '/*'
+      #     AWS_REGION: 'us-east-2'
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
+      # Configure Aws account
+      - name: Configure AWS credentials from Test account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      # Deploy to s3
+      - name: Copy files to the test website with the AWS CLI
+        run: |
+          aws s3 sync . s3://dtoki-0914-app.cmt.dev
+# TODO: Deploy for productions
