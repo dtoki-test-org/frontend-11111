@@ -83,5 +83,12 @@ jobs:
       # Deploy to s3
       - name: Copy files to the test website with the AWS CLI
         run: |
+          cd build-artifact
           aws s3 sync . s3://dtoki-0914-app.cmt.dev
+
+      # # Invalidate Cloudfront
+      # - name: Invalidate Cloudfront
+      #   run: |
+      #     export DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items[?@=='<< parameters.bucket >>']].Id | [0]" | tr -d '"')
+      #     aws cloudfront create-invalidation --distribution-id ${DIST_ID} --paths "/*"
 # TODO: Deploy for productions
