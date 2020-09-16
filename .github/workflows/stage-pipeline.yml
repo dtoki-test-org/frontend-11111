@@ -1,16 +1,16 @@
 # .github/workflows/stage-pipeline.yml
-
+# This is a github action pipeline for staging. 
 name: Stage Deployment
 on:
   push:
     branches: [ master ]
-
+# Jobs
 jobs:
   build-stage:
     runs-on: ubuntu-latest
     env:
       CI: true
-      build_env: stage
+      build_env: staging
     steps:
     # Checkout the code
       - uses: actions/checkout@v2
@@ -73,3 +73,5 @@ jobs:
           export DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items[?@=='${{ env.bucket }}']].Id | [0]" | tr -d '"')
           aws cloudfront create-invalidation --distribution-id ${DIST_ID} --paths "/*"
 # TODO: Approval workflow, Make comment on how to manual step to deploy to prod
+# Message saying the deploy to stage was sucesful and insturctions on how to deploy to prod.
+
