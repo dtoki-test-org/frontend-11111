@@ -37,7 +37,7 @@ jobs:
       - name: Upload build artifact to Github
         uses: actions/upload-artifact@v1
         with:
-          name: stage-build-artifact
+          name: build-artifact
           path: build/
 # TODO: Deploy for stage
   deploy-stage:
@@ -63,8 +63,9 @@ jobs:
       
       # Deploy to s3
       - name: Copy files to the test website with the AWS CLI
+        id: s3Sync
         run: |
-          cd stage-build-artifact
+          cd build-artifact
           aws s3 sync . s3://${{ env.bucket }}
 
       # Invalidate Cloudfront
@@ -72,6 +73,20 @@ jobs:
         run: |
           export DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items[?@=='${{ env.bucket }}']].Id | [0]" | tr -d '"')
           aws cloudfront create-invalidation --distribution-id ${DIST_ID} --paths "/*"
-# TODO: Approval workflow, Make comment on how to manual step to deploy to prod
-# Message saying the deploy to stage was sucesful and insturctions on how to deploy to prod.
+
+      - uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Deploy to production`
+            #### Staging S3 Sync: ⚙️\`${{ steps.s3Sync.outcome }}\`
+            #### Manually trigger deployment -> link-goes-here
+            `;
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
