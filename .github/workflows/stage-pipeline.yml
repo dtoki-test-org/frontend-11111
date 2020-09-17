@@ -2,8 +2,10 @@
 # This is a github action pipeline for staging. 
 name: Stage Deployment
 on:
-  push:
-    branches: [ master ]
+# you may only want to run this on certain events see: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
+  # push:
+  #   branches: [ master ]
+  pull_request
 # Jobs
 jobs:
   build-stage:
