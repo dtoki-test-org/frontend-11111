@@ -82,9 +82,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Deploy to production
-            #### Staging S3 Sync: ⚙️\`${{ steps.s3Sync.outcome }}\`
-            #### Manually trigger deployment -> link-goes-here
+            const output = `### Deploy to production
+            Staging S3 Sync: ⚙️\`${{ steps.s3Sync.outcome }}\`
+            Manually trigger production deployment [here](https://github.com/dtoki-test-org/frontend-11111/actions?query=workflow%3A%22Production+Deployment%22)
             `;
             github.issues.createComment({
               issue_number: context.issue.number,
