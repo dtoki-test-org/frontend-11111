@@ -51,7 +51,7 @@ jobs:
       - name: Download artifact from build step
         uses: actions/download-artifact@v1
         with:
-          name: stage-build-artifact
+          name: build-artifact
       
       # Configure Aws account for S3 Sync
       - name: Configure AWS credentials for S3 sync
