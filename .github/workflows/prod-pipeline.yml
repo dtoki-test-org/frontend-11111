@@ -8,23 +8,7 @@ on:
         description: Git Ref (Optional)    
         required: false
 # Jobs
-jobs:
-  build-prod:
-      runs-on: ubuntu-latest
-      env:
-        CI: true
-        build_env: production
-      steps:
-      # Checkout the code
-        - uses: actions/checkout@v2
-      # Run Tests
-        - name: Run Unit Tests
-          uses: actions/setup-node@v1
-          with: 
-            node-version: 12.x
-        - run: |
-            yarn
-            yarn test --watchAll=false
+jobs: 
   deploy-prod:
     name: Deploy To Production
     runs-on: ubuntu-latest
@@ -33,17 +17,11 @@ jobs:
       region: us-west-2
       bucket: dtoki-1208-app.czerotest.com
     steps:
-      # Clone repo
-      - name: Clone Repository (Latest)
-        uses: actions/checkout@v2
-        if: github.event.inputs.git-ref == ''
-      # Clone repo with custom ref
-      - name: Clone Repository (Custom Ref)
-        uses: actions/checkout@v2
-        if: github.event.inputs.git-ref != ''
+      - name: Download artifact from build step
+        uses: actions/download-artifact@v1
         with:
-          ref: ${{ github.event.inputs.git-ref }}
-       # Configure Aws account for S3 Sync
+          name: build-artifact
+      # Configure Aws account for S3 Sync
       - name: Configure AWS credentials for S3 sync
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -53,7 +31,7 @@ jobs:
       # Deploy to s3
       - name: Copy files to the test website with the AWS CLI
         run: |
-          cd stage-build-artifact
+          cd build-artifact
           aws s3 sync . s3://${{ env.bucket }}
       # Invalidate Cloudfront
       - name: Invalidate Cloudfront
