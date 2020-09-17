@@ -3,9 +3,9 @@
 name: Stage Deployment
 on:
 # you may only want to run this on certain events see: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
-  # push:
-  #   branches: [ master ]
-  pull_request
+  push:
+    branches: [ master ]
+  pull_request:
 # Jobs
 jobs:
   build-stage:
@@ -82,8 +82,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Deploy to production`
-           
+            const output = `#### Deploy to production
+            #### Staging S3 Sync: ⚙️\`${{ steps.s3Sync.outcome }}\`
             #### Manually trigger deployment -> link-goes-here
             `;
             github.issues.createComment({
