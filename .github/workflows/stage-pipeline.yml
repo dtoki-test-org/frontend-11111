@@ -76,13 +76,14 @@ jobs:
           export DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items[?@=='${{ env.bucket }}']].Id | [0]" | tr -d '"')
           aws cloudfront create-invalidation --distribution-id ${DIST_ID} --paths "/*"
 
-      - uses: actions/github-script@0.9.0
+      - name: Comment on open PR
+        uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `#### Deploy to production`
-            #### Staging S3 Sync: ⚙️\`${{ steps.s3Sync.outcome }}\`
+           
             #### Manually trigger deployment -> link-goes-here
             `;
             github.issues.createComment({
